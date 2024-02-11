@@ -1,0 +1,32 @@
+name: Run Tests
+
+on:
+  push:
+    branches:
+      - main
+jobs:
+  Run-Tests:
+    name: Test and verify
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: 8.2
+          tools: composer:v2
+
+      - name: Copy .env file
+        run: cp .env.example .env
+
+      - name: Install Composer dependencies
+        run: composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
+
+      - name: Generate application key
+        run: php artisan key:generate
+
+      - name: Execute tests (Unit and Feature tests) via Pest
+        run: ./vendor/bin/pest
